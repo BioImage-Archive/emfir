@@ -1,0 +1,9 @@
+[package]
+name = "emfir-cli"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+mrc = { path = "../mrc" }
+clap = { version = "4.5.30", features = ["derive"] }
+serde_json = "1.0.139"
