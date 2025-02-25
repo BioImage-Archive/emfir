@@ -2,4 +2,4 @@
 members = [
     "crates/mrc",
     "crates/emfir-cli"
-]
+, "crates/eer"]
