@@ -38,22 +38,35 @@ fn main() {
             match MrcFile::open(&cli.file.to_string_lossy()) {
                 Ok(mrc) => {
 
-                    let image_data = mrc.get_image_data();
-                    match serde_json::to_string_pretty(image_data) {
-                        Ok(json) => println!("{}", json),
-                        Err(e) => {
-                            eprintln!("Error serializing to JSON: {}", e);
-                            process::exit(1);
+                    match cli.command.as_str() {
+                        "header" => {
+                            let image_data = mrc.get_image_data();
+                            match serde_json::to_string_pretty(image_data) {
+                                Ok(json) => println!("{}", json),
+                                Err(e) => {
+                                    eprintln!("Error serializing to JSON: {}", e);
+                                    process::exit(1);
+                                }
+                            }
+                        },
+                        "thumbnail" => {
+                            if let Some(output_path) = &cli.output {
+                                match mrc.save_thumbnail(&output_path.to_string_lossy(), cli.downsample) {
+                                    Ok(_) => println!("Thumbnail generated at {:?}", output_path),
+                                    Err(e) => {
+                                        eprintln!("Error generating thumbnail: {}", e);
+                                        process::exit(1);
+                                    }
+                                }
+                            } else {
+                                eprintln!("Output path is required for thumbnail command. Use --output");
+                                process::exit(1);
+                            }
+                        },
+                        _ => {
+                            eprintln!("Unknown command: {}. Use 'header' or 'thumbnail'.", cli.command);
                         }
                     }
-        
-                    // // Generate thumbnail if requested
-                    // if let Some(thumbnail_path) = args.thumbnail {
-                    //     if let Err(e) = mrc.save_thumbnail(&thumbnail_path, args.downsample) {
-                    //         eprintln!("Error generating thumbnail: {}", e);
-                    //         process::exit(1);
-                    //     }
-                    // }
                 }
                 Err(err) => {
                     eprintln!("Error reading MRC file: {}", err);
@@ -90,32 +103,4 @@ fn main() {
         }
     }
 
-    // match cli.command.as_str() {
-    //     "header" => {
-    //         if is_mrc {
-    //             // call MRC code
-    //             println!("Reading MRC header from {:?}", cli.file);
-    //             // mrc::print_header(&cli.file);
-    //         } else if is_eer {
-    //             println!("Reading EER header from {:?}", cli.file);
-    //             // eer::print_header(&cli.file);
-    //         } else {
-    //             eprintln!("Unknown file type for {:?}", cli.file);
-    //         }
-    //     },
-    //     "thumbnail" => {
-    //         if is_mrc {
-    //             println!("Generating MRC thumbnail for {:?}", cli.file);
-    //             // mrc::generate_thumbnail(&cli.file);
-    //         } else if is_eer {
-    //             println!("Generating EER thumbnail for {:?}", cli.file);
-    //             // eer::generate_thumbnail(&cli.file);
-    //         } else {
-    //             eprintln!("Unknown file type for {:?}", cli.file);
-    //         }
-    //     },
-    //     _ => {
-    //         eprintln!("Unknown command: {}. Use 'header' or 'thumbnail'.", cli.command);
-    //     }
-    // }
 }
