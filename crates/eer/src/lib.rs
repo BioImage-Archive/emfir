@@ -354,30 +354,31 @@ pub struct ImageData {
 }
 
 
-pub fn generate_thumbnail(path: &Path, output_path: &Path) -> Result<()> {
+pub fn generate_thumbnail(path: &Path, output: &str, skip_frames: Option<u32>) -> Result<()> {
     let file = File::open(path)?;
     let mut decoder = Decoder::new(file)?;
-    
-    // Get compression parameters
-    let mut params = get_compression_params(&mut decoder)?;
-    
-    // Determine number of frames
-    let mut num_frames = 1;
-    let mut temp_decoder = decoder.clone();
-    while temp_decoder.more_images() {
-        num_frames += 1;
-        temp_decoder.next_image()?;
+
+    // Count total frames
+    let mut total_frames = 1;
+    while decoder.more_images() {
+        total_frames += 1;
+        decoder.next_image()?;
     }
-    
-    // Decode frames with skipping (process every 10th frame for speed)
-    let skip_frames = Some(10);
-    let image = decode_frames(&mut decoder, &mut params, path, num_frames, skip_frames)?;
+
+    // Reset decoder to start
+    let file = File::open(path)?;
+    let mut decoder = Decoder::new(file)?;
+    let mut params = get_compression_params(&mut decoder)?;
+
+    // Decode frames with optional skipping
+    let image = decode_frames(&mut decoder, &mut params, path, total_frames, skip_frames)?;
     
     // Save the thumbnail
-    save_image(&image, output_path.to_str().unwrap())?;
-    
+    save_image(&image, output)?;
+    println!("\nSaved thumbnail to {}", output);
     Ok(())
 }
+
 
 pub fn show_header_info(path: &Path) -> Result<()> {
     let file = File::open(path)?;
