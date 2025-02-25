@@ -64,7 +64,7 @@ fn main() {
                 },
                 "thumbnail" => {
                     if let Some(output_path) = &cli.output {
-                        match generate_thumbnail(&cli.file, output_path) {
+                        match generate_thumbnail(&cli.file, output_path, None) {
                             Ok(_) => println!("Thumbnail generated at {:?}", output_path),
                             Err(e) => {
                                 eprintln!("Error generating thumbnail: {}", e);

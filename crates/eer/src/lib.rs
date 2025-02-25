@@ -187,7 +187,7 @@ pub fn sample_format_to_string(format: u32) -> &'static str {
     }
 }
 
-pub fn save_image(image: &Array2<u16>, path: &str) -> Result<()> {
+pub fn save_image(image: &Array2<u16>, path: &Path) -> Result<()> {
     // Convert to f32 for calculations
     let float_img = image.mapv(|x| x as f32);
     
@@ -354,7 +354,7 @@ pub struct ImageData {
 }
 
 
-pub fn generate_thumbnail(path: &Path, output: &str, skip_frames: Option<u32>) -> Result<()> {
+pub fn generate_thumbnail(path: &Path, output: &Path, skip_frames: Option<u32>) -> Result<()> {
     let file = File::open(path)?;
     let mut decoder = Decoder::new(file)?;
 
@@ -375,7 +375,7 @@ pub fn generate_thumbnail(path: &Path, output: &str, skip_frames: Option<u32>) -
     
     // Save the thumbnail
     save_image(&image, output)?;
-    println!("\nSaved thumbnail to {}", output);
+    println!("\nSaved thumbnail to {}", output.display());
     Ok(())
 }
 
