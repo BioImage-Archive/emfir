@@ -1,5 +1,6 @@
 use clap::Parser;
 use mrc::MrcFile;
+use eer::show_header_info;
 use std::path::PathBuf;
 use std::process;
 
@@ -53,7 +54,18 @@ fn main() {
             }
         }
         "eer" => {
-            println!("Doing EERthings");
+             match cli.command.as_str() {
+                "header" => {
+                    show_header_info(&cli.file);
+                },
+                "thumbnail" => {
+                    println!("Generate thumbnail!")
+                    // eer::generate_thumbnail(file)
+                },
+                _ => {
+                    eprintln!("Unknown command: {}. Use 'header' or 'thumbnail'.", cli.command);
+                }
+            }
         }
         _ => {
             eprintln!("Can't handle file with this extension: {}", extension);
