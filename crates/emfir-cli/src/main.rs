@@ -1,6 +1,6 @@
-use clap::Parser;
+use clap::{Parser, Subcommand};
 use mrc::MrcFile;
-use eer::show_header_info;
+use eer::{show_header_info, generate_thumbnail};
 use std::path::PathBuf;
 use std::process;
 
@@ -15,6 +15,10 @@ struct Cli {
     /// Command: either "header" or "thumbnail"
     #[arg(short, long)]
     command: String,
+    
+    /// Output path for thumbnail (required for thumbnail command)
+    #[arg(short, long)]
+    output: Option<PathBuf>,
 }
 
 fn main() {
@@ -59,8 +63,18 @@ fn main() {
                     show_header_info(&cli.file);
                 },
                 "thumbnail" => {
-                    println!("Generate thumbnail!")
-                    // eer::generate_thumbnail(file)
+                    if let Some(output_path) = &cli.output {
+                        match generate_thumbnail(&cli.file, output_path) {
+                            Ok(_) => println!("Thumbnail generated at {:?}", output_path),
+                            Err(e) => {
+                                eprintln!("Error generating thumbnail: {}", e);
+                                process::exit(1);
+                            }
+                        }
+                    } else {
+                        eprintln!("Output path is required for thumbnail command. Use --output");
+                        process::exit(1);
+                    }
                 },
                 _ => {
                     eprintln!("Unknown command: {}. Use 'header' or 'thumbnail'.", cli.command);
