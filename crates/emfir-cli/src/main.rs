@@ -19,6 +19,10 @@ struct Cli {
     /// Output path for thumbnail (required for thumbnail command)
     #[arg(short, long)]
     output: Option<PathBuf>,
+    
+    /// Downsample factor for thumbnail generation (process every Nth frame)
+    #[arg(short, long, default_value = "10")]
+    downsample: u32,
 }
 
 fn main() {
@@ -64,7 +68,7 @@ fn main() {
                 },
                 "thumbnail" => {
                     if let Some(output_path) = &cli.output {
-                        match generate_thumbnail(&cli.file, output_path, None) {
+                        match generate_thumbnail(&cli.file, output_path, Some(cli.downsample)) {
                             Ok(_) => println!("Thumbnail generated at {:?}", output_path),
                             Err(e) => {
                                 eprintln!("Error generating thumbnail: {}", e);
